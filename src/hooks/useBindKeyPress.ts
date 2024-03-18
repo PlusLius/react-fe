@@ -1,0 +1,53 @@
+import { useKeyPress } from "ahooks";
+import { copySelectedComponent, pasteCompiedComponet, removeSelectedComponent, selectNextCompont, selectPrevCompont } from "../store/componentReducer";
+import { useDispatch } from "react-redux";
+import { ActionCreators as UndoActionCreators } from "redux-undo";
+
+function isActiveElementValid(){
+    const activeElem = document.activeElement
+
+    // if(activeElem === document.body) return true
+    if(activeElem === document.body) return true
+    if(activeElem?.matches('div[role="button"]'))return true
+
+    return false
+}
+
+function useBindCanvasKeyPress() {
+    const dispatch = useDispatch()
+    useKeyPress(['backspace','delete'], () => {
+        if(!isActiveElementValid())return  
+        dispatch(removeSelectedComponent())
+    })
+
+    useKeyPress(['ctrl.c', 'meta.c'], () => {
+        if(!isActiveElementValid())return  
+        dispatch(copySelectedComponent())
+    })
+
+    useKeyPress(['ctrl.v', 'meta.v'], () => {
+        if(!isActiveElementValid())return  
+        dispatch(pasteCompiedComponet())
+    })
+
+    useKeyPress(['uparrow'], () => {
+        if(!isActiveElementValid())return  
+        dispatch(selectPrevCompont())
+    })
+    useKeyPress(['downarrow'], () => {
+        if(!isActiveElementValid())return  
+        dispatch(selectNextCompont())
+    })
+    useKeyPress(['ctrl.z','meta.z'], () => {
+        if(!isActiveElementValid())return  
+        dispatch(UndoActionCreators.undo())
+    }, {
+        exactMatch: true
+    })
+    useKeyPress(['ctrl.shift.z','meta.shift.z'], () => {
+        if(!isActiveElementValid())return  
+        dispatch(UndoActionCreators.redo())
+    })
+}
+
+export default useBindCanvasKeyPress
